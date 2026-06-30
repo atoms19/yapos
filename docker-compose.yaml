@@ -1,18 +1,37 @@
-version: "3.8"
 services:
-  yapos_app:
-    build: .
+  yapos_backend:
+    build: ./backend
     restart: always
-    environment: 
+    environment:
       - NODE_ENV=production
 
+  yapos_frontend:
+    build: ./frontend
+    restart: always
+    environment:
+      - NODE_ENV=production
+
+  yapos_db:
+    image: postgres:16
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=yapos
+      - POSTGRES_PASSWORD=yapos123
   nginx:
     image: nginx:alpine
     restart: always
-    ports: 
+    ports:
       - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - yapos_app
+      - yapos_backend
+      - yapos_frontend
 
+volumes:
+  postgres_data:
